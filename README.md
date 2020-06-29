@@ -1,1 +1,2 @@
-# A00819666---Gr-ficas-Computacionales
+# José Alejandro Myrick Asturias
+# A00819666
