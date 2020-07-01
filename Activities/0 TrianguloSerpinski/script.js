@@ -6,24 +6,6 @@ class Triangle {
         this.xStart = xStart;
         this.yStart = yStart;
     }
-    topX() {
-        return this.center[0] - this.center[0] / 2;
-    }
-    topY() {
-        return this.center[1] - this.center[1];
-    }
-    leftX() {
-        return this.center[0] - this.center[0];
-    }
-    leftY() {
-        return this.center[1];
-    }
-    rightX() {
-        return this.center[0];
-    }
-    rightY() {
-        return this.center[1];
-    }
 }
 
 function clear(context, color, width, height) {
