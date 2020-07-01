@@ -1,30 +1,86 @@
-function drawTriangle(xpi, ypi, width, height, context) {
-    context.beginPath();
-    context.fillStyle = "#1A535C";
-    context.moveTo(xpi + width / 2, ypi);
-    context.lineTo(xpi, ypi + height);
-    context.lineTo(xpi + width, ypi + height);
-    context.lineTo(xpi + width / 2, ypi);    
-    context.closePath();
-    context.fill();
-    context.stroke();
+class Triangle {
+    constructor(width, height, xStart, yStart) {
+        this.width = width;
+        this.height = height;
+        this.center = [width / 2, height / 2];
+        this.xStart = xStart;
+        this.yStart = yStart;
+    }
+    topX() {
+        return this.center[0] - this.center[0] / 2;
+    }
+    topY() {
+        return this.center[1] - this.center[1];
+    }
+    leftX() {
+        return this.center[0] - this.center[0];
+    }
+    leftY() {
+        return this.center[1];
+    }
+    rightX() {
+        return this.center[0];
+    }
+    rightY() {
+        return this.center[1];
+    }
 }
 
-drawRecursive(numTriangles){
-    if (numTriangles === 0)
-        drawTriangle(0, 0, width, height, context);
+function clear(context, color, width, height) {
+    context.fillStyle = color;
+    context.fillRect(0, 0, width, height);
 }
+
+function drawTriangle(context, color, t) {
+    context.beginPath();
+    context.fillStyle = color;
+    context.moveTo(t.xStart + t.center[0], t.yStart);
+    context.lineTo(t.xStart, t.yStart + t.height);
+    context.lineTo(t.xStart + t.width, t.yStart + t.height);
+    context.lineTo(t.xStart + t.center[0], t.yStart);
+    //context.fill();
+    context.stroke();
+    context.closePath();
+}
+
+function drawFractal(context, parentT, childT, subDivision) {
+    if (subDivision == 0)
+        return drawTriangle(context, "#023E8A", childT);
+
+    //Top triangle                                                                V <----parentT.center[0] ERROR
+    drawFractal(context, childT, new Triangle(childT.center[0], childT.center[1],  childT.topX(), childT.topY()), subDivision - 1);
+    //Left triangle
+    drawFractal(context, childT, new Triangle(childT.center[0], childT.center[1], childT.leftX(), childT.leftY()), subDivision - 1);
+    //Right triangle
+    drawFractal(context, childT, new Triangle(childT.center[0], childT.center[1], childT.rightX(), childT.rightY()), subDivision - 1);
+}
+
 //Called from onLoad() event
 function main() {
-    //Draw a triangle with no subdivisions
     let width = window.innerWidth / 2;
-    let height = width;
+    //Set correct height. If width is larger than window height then set to 80% window height
+    let height = (width <= window.innerHeight ? width : 0.85 * window.innerHeight);
+    console.log(height);
+    //Get Canvas element and set appriopritate context
+    let myCanvas = document.getElementById("myCanvas");
+    let context = myCanvas.getContext("2d");
+    let triangle = new Triangle(width, height, 0, 0);
 
-    var myCanvas = document.getElementById("myCanvas");
-    var context = myCanvas.getContext("2d");
-
+    //Set canvas size
     myCanvas.width = width;
     myCanvas.height = height;
 
-    drawTriangle(0, 0, width, height, context);
+    //Draw undivided triangle
+    drawFractal(context, null, triangle, 0);
+    sliderChange(context, myCanvas, triangle);
+}
+
+function sliderChange(context, canvas, baseTriangle) {
+    document.getElementById("myRange").oninput = (event) => {
+        let rangeValue = event.target.value;
+        console.log(rangeValue);
+        document.getElementById('rangeValue').innerHTML = ` ${rangeValue}`
+        clear(context, '#FFFF', canvas.width, canvas.height);
+        drawFractal(context, null, baseTriangle, rangeValue);
+    }
 }
