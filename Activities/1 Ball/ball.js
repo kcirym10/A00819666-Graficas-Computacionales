@@ -14,7 +14,7 @@ function playerBallCollition(player, ball) {
 }
 
 class bar {
-    constructor(color, x, y, width, height, isAI, upKey, downKey) {
+    constructor(color, x, y, width, height, isAI, upKey, downKey, playerSpeed) {
         this.color = color;
         this.x = x;
         this.y = y;
@@ -23,12 +23,20 @@ class bar {
         this.isAI = isAI;
         this.upKey = upKey;
         this.downkey = downKey;
-        this.AISpeed = 1;
+        this.playerSpeed = playerSpeed;
         document.addEventListener('keypress', (key) => {
-            if (key.key === this.upKey)
-                this.y -= 4;
-            if (key.key === this.downkey)
-                this.y += 4;
+            if (key.key === this.upKey) {
+                if (this.checkLimits(0))
+                    this.y = 0;
+                else
+                    this.y -= this.playerSpeed;
+            }
+            if (key.key === this.downkey) {
+                if (this.checkLimits(canvas.height))
+                    this.y = canvas.height - this.height;
+                else
+                    this.y += this.playerSpeed;
+            }
         })
     }
     draw() {
@@ -39,20 +47,41 @@ class bar {
         ctx.closePath();
     }
     moveAI(ball) {
-        if (ball.y > this.y)
-            this.y += this.AISpeed;
-        if (ball.y < this.y)
-            this.y -= this.AISpeed;
+        console.log('a');
+        if (ball.up) {
+            if (this.checkLimits(0))
+                this.y = canvas.height - this.height;
+            else
+                this.y -= this.playerSpeed;
+        }
+        else {
+            if (this.checkLimits(canvas.height))
+                this.y = 0;
+            else
+                this.y += this.playerSpeed;
+        }
+    }
+    checkLimits(yLimit) {
+            
+        if (yLimit === 0) {
+            if (this.y - this.playerSpeed <= 0)
+                return true;
+        }
+        else {
+            if (this.y + this.height + this.playerSpeed > yLimit)
+                return true;
+        }
+        return false;
     }
 }
 
 class sphere{
-    constructor(color, x, y, radius) {
+    constructor(color, x, y, radius, speed) {
         this.color = color;
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.speed = 3;
+        this.speed = speed;
         //La logica de las animaciones se maneja
         //como maquinas de estado simples
         this.right = true;
@@ -77,14 +106,14 @@ class sphere{
             this.up = false;
 
         if (this.right)
-            this.x += 2;
+            this.x += this.speed;
         else
-            this.x -= 2;
+            this.x -= this.speed;
 
         if (this.up)
-            this.y -= 2;
+            this.y -= this.speed;
         else
-            this.y += 2;
+            this.y += this.speed;
     }
 }
 
@@ -116,16 +145,28 @@ function update(Objects) {
     ctx.closePath();
 }
 
-/*function update(objects){  requestAnimationFrame(() => update(objects));  ctx.clearRect(0,0, canvas.width, canvas.height);  objects.forEach(object => {    if(object['draw'])      object.draw();    if(object['update'])      object.update(canvas.width, canvas.height);  });}
+/*function update(objects)
+{
+  requestAnimationFrame(() => update(objects));
+
+  ctx.clearRect(0,0, canvas.width, canvas.height);
+
+  objects.forEach(object => {
+    if(object['draw'])
+      object.draw();
+    if(object['update'])
+      object.update(canvas.width, canvas.height);
+  });
+}
 */
 
 function main() {
     canvas = document.getElementById("ballCanvas");
     ctx = canvas.getContext("2d");
 
-    let ball = new sphere('white', canvas.width / 2, canvas.height / 2, 20);
-    let player = new bar('white', 20, canvas.height / 2 - canvas.height / 10, 20, canvas.height / 5, true, 'w', 's');
-    let player1 = new bar('white', canvas.width - 40, canvas.height / 2 - canvas.height / 8, 20, canvas.height / 4, false, 'o', 'l');
+    let ball = new sphere('white', canvas.width / 2, canvas.height / 2, 20, 3);
+    let player = new bar('white', 20, canvas.height / 2 - canvas.height / 10, 20, canvas.height / 5, true, 'w', 's', 2);
+    let player1 = new bar('white', canvas.width - 40, canvas.height / 2 - canvas.height / 8, 20, canvas.height / 4, false, 'o', 'l', 4);
 
     update([player, ball, player1]);
 }
