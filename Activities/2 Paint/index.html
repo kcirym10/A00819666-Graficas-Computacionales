@@ -8,21 +8,21 @@
 </head>
 <body onload="main()">
     <div style="display: inline-block;">
-        <input type="range" min="1" max="10" value="1" id="brushSize"/>
+        <input type="range" min="1" max="10" value="1" id="myRange"/>
         <br />
-        <label for="brushSize">Size: </label>
+        <label id="rangeValue" for="myRange">Size: 1</label>
         <br />
-        <button id="clearCanvas">Clear Canvas</button>
+        <button id="clearBtn">Clear Canvas</button>
         <br />
         <!--Color buttons-->
-        <button style='background-color: black'   value="#000000;" class="colors"></button>
-        <button style='background-color: #ff0000' value="#ff0000;" class="colors"></button>
-        <button style='background-color: #1718d8' value="#1718d8;" class="colors"></button>
+        <button id="color1"style='background-color: black'   value="#000000" class="colors"></button>
+        <button id="color2"style='background-color: #ff0000' value="#ff0000" class="colors"></button>
+        <button id="color3"style='background-color: #1718d8' value="#1718d8" class="colors"></button>
         <br />
-        <button style='background-color: #4cff00' value="#4cff00;" class="colors"></button>
-        <button style='background-color: #14bdb7' value="#14BDB7;" class="colors"></button>
-        <button style='background-color: #ffd800' value="#FFD800;" class="colors"></button>
+        <button id="color4"style='bxackground-color: #4cff00' value="#4cff00" class="colors"></button>
+        <button id="color5"style='background-color: #14bdb7' value="#14BDB7" class="colors"></button>
+        <button id="color6"style='background-color: #ffd800' value="#FFD800" class="colors"></button>
     </div>
-    <canvas id="canvas" width="500" height="300" style="background-color: white; vertical-align: top;"></canvas>
+    <canvas id="canvas" width="500" height="300" style="background-color: white; vertical-align: top; border: 1px double black;"></canvas>
 </body>
 </html>

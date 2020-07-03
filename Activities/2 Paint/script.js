@@ -24,10 +24,9 @@ class Canvas {
     }
     clear() {
         ctx.beginPath();
-        ctx.strokeStyle = "black";
         ctx.fillStyle = "white";
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.stroke();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fill();
         ctx.closePath();
     }
 }
@@ -52,6 +51,9 @@ class Brush extends Canvas{
                 console.log('Started Drawing');
                 this.drawing = true;
                 ctx.beginPath();
+                ctx.lineWidth = this.size;
+                ctx.strokeStyle = this.lineColor;
+                console.log(this.lineColor);
                 ctx.moveTo(event.clientX - this.canvasPos.left, event.clientY - this.canvasPos.top);
                 this.draw(event.clientX - this.canvasPos.left, event.clientY - this.canvasPos.top);
             }
@@ -64,15 +66,16 @@ class Brush extends Canvas{
         });
         //My update function
         canvas.addEventListener('mousemove', (event) => {
-            console.log(`Screen Coords (${this.canvasPos.left}, ${this.canvasPos.top}`);
+            //console.log(`Screen Coords (${this.canvasPos.left}, ${this.canvasPos.top}`);
             this.draw(event.clientX - this.canvasPos.left, event.clientY - this.canvasPos.top);
         });
     }
     draw(xPos, yPos) {
         if (this.canDraw && this.drawing) {
+            ctx.strokeStyle = this.lineColor;
             ctx.lineTo(xPos, yPos);
             ctx.stroke();
-            console.log(`Coords (${xPos}, ${yPos})`);
+            //console.log(`Coords (${xPos}, ${yPos})`);
         }
     }
 }
@@ -82,16 +85,34 @@ function main() {
     ctx = canvas.getContext('2d');
     let brush = new Brush(1, 'black');
 
-    attachEvents();
+    attachEvents(brush);
 }
 
-function attachEvents() {
+function attachEvents(brush) {
     elements.forEach((element) => {
         console.log(element);
-        
+        switch (element) {
+            case 'myRange':
+                document.getElementById(element).oninput = (event) => {
+                    brush.size = event.target.value;
+                    document.getElementById('rangeValue').innerHTML = 'Size: ' + event.target.value;
+                }
+                break;
+            case 'clearBtn':
+                document.getElementById(element).addEventListener('click', (event) => {
+                    brush.clear();
+                });
+                break;
+            case element:
+                document.getElementById(element).addEventListener('click', (event) => {
+                    brush.lineColor = event.target.value;
+                    console.log(brush.lineColor);
+                })
+        }
     });
     //Same
     /*for (element of elements) {
         console.log(element);
     }*/
+
 }
