@@ -1,5 +1,7 @@
-﻿let mat4 = glMatrix.mat4;
+﻿//import { } from '../libs/jquery-3.4.1/jquery-3.4.1.min.js';
+//import { mat4 } from '../libs/gl-matrix/src/index.js';
 
+let mat4 = glMatrix.mat4;
 let projectionMatrix;
 
 let shaderProgram, shaderVertexPositionAttribute, shaderVertexColorAttribute, shaderProjectionMatrixUniform, shaderModelViewMatrixUniform;
@@ -87,7 +89,107 @@ function initGL(canvas) {
  * @param {number} rotationAxis
  */
 function createPyramid(gl, translation, rotationAxis) {
-    
+    //Vertex data
+    let vertexBuffer;
+    vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+    //Pentagonal pyramid
+    let vertices = [
+        //Bottom face -> pentagon
+        +0.0, -0.5, -0.5,   //0 -> Far point
+        -0.7, -0.5, +0.0,   //1 -> Left mid
+        -0.5, -0.5, +0.5,   //2 -> Bottom left
+        +0.5, -0.5, +0.5,   //3 -> Bottom right
+        +0.7, -0.5, +0.0,   //4 -> Right mid
+
+        //Front face
+        -0.5, -0.5, +0.5,   //5 (2) -> Bottom left
+        +0.5, -0.5, +0.5,   //6 (3) -> Bottom right
+        +0.0, +0.5, +0.0,   //7 -> Top
+
+        //Right front face
+        -0.5, -0.5, +0.5,   //8 (2) -> Bottom left
+        +0.5, -0.5, +0.5,   //9 (3) -> Bottom right
+        +0.0, +0.5, +0.0,   //10 (7) -> Top
+
+        //Right back face
+        +0.7, -0.5, +0.0,   //11 (4) -> Right mid
+        +0.0, -0.5, -0.5,   //12 (0) -> Far point
+        +0.0, +0.5, +0.0,   //13 (7) -> Top
+
+        //Left back face
+        +0.0, -0.5, -0.5,   //14 (0) -> Far point
+        -0.7, -0.5, +0.0,   //15 (1) -> Left mid
+        +0.0, +0.5, +0.0,   //16 (7) -> Top
+
+        //Left front face
+        -0.7, -0.5, +0.0,   //17 (1) -> Left mid
+        -0.5, -0.5, +0.5,   //18 (2) -> Bottom left
+        +0.0, +0.5, +0.0,   //19 (7) -> Top
+    ];
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    //Color data
+    let colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    let faceColors = [
+        [1.0, 0.0, 0.0, 1.0], //Base color
+        [0.0, 1.0, 0.0, 1.0], //Front face
+        [0.0, 0.0, 1.0, 1.0], //Right front face
+        [1.0, 1.0, 0.0, 1.0], //Right back face
+        [1.0, 0.0, 1.0, 1.0], //Left front face
+        [0.0, 1.0, 1.0, 1.0]  //Left back face  
+    ];
+
+    //Assign a color to each vertex
+    let vertexColors = [];
+    faceColors.forEach(color => {
+        for (let i = 0; i < 3; i++) {
+            vertexColors.push(...color);
+        }
+    });
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexColors), gl.STATIC_DRAW);
+
+    let pyramidIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidIndexBuffer);
+
+    //Index data -> defines which vertices form each triangle face
+    let pyramidIndices = [
+        0, 1, 2,    //Base
+        2, 0, 3,    //Base
+        3, 4, 0,    //Base
+        /////////////////////////
+        5, 6, 7,    //Front face
+        8, 9, 10,   //Right front face
+        11, 12, 13, //Right back face
+        14, 15, 16, //Left back face
+        17, 18, 19  //Left front face
+    ];
+    console.log(vertices.length);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(pyramidIndices), gl.STATIC_DRAW);
+
+    let pyramid = {
+        buffer: vertexBuffer, colorBuffer: colorBuffer, indices: pyramidIndexBuffer,
+        vertSize: 3, nVerts: vertices.length, colorSize: 3, nColors: vertexColors.length, nInices: pyramidIndices.length,
+        primtype: gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime: Date.now()
+    };
+
+    mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
+
+    pyramid.update = function () {
+        let now = Date.now();
+        let deltaT = now - this.currentTime;
+        this.currentTime = now;
+        let fract = deltaT / duration;
+        let angle = Math.PI * 2 * fract;
+
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
+    };
+
+    return pyramid;
 }
 
 function createShader(gl, str, type) {
