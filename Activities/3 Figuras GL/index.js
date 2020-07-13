@@ -1,5 +1,5 @@
-﻿let mat4 = import glMatrix from '../libs/gl-matrix/gl-matrix.js';
-mat4 = mat4.mat4
+﻿//let mat4 = import glMatrix from '../libs/gl-matrix/gl-matrix.js';
+let mat4 = glMatrix.mat4
 
 function getRad(theta) {
     console.log(theta * Math.PI / 180);
