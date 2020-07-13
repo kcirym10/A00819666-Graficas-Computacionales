@@ -1,6 +1,12 @@
-﻿import { Vertex } from "../libs/three.js/three.module";
+﻿///<reference path="../libs/gl-matrix/src/mat4.js"/>
 
 let mat4 = glMatrix.mat4;
+
+let projectionMatrix;
+
+let shaderProgram, shaderVertexPositionAttribute, shaderVertexColorAttribute, shaderProjectionMatrixUniform, shaderModelViewMatrixUniform;
+
+let duration = 5000; // ms
 
 /**
  * 
@@ -30,7 +36,7 @@ function initWebGL(canvas) {
 function clearCanvas(gl) {
     gl.clearColor(1, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    alert(gl.getParameter(gl.COLOR_CLEAR_VALUE));
+    //alert(gl.getParameter(gl.COLOR_CLEAR_VALUE));
 }
 
 /**
@@ -45,31 +51,59 @@ function initViewport(gl, canvas) {
 
 /**
  * 
+ * @param {HTMLCanvasElement} canvas
+ */
+function initGL(canvas) {
+    projectionMatrix = mat4.create();
+
+    mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 1, 100);
+    mat4.translate(projectionMatrix, projectionMatrix, [0, 0, -5]);
+}
+
+/**
+ * 
  * @param {WebGLRenderingContext} gl
  * @param {vec3} transformation
  * @param {vec3} rotation
  */
-function createPyramid(gl, transformation, rotation) {
+function createPyramid(gl, translation, rotation) {
     //Step 1 -> Create the geometry and define indices
     //Define pyramid geometry
     let vertices = [
-        //Base ->  [0, 1, 2] -> [2, 1, 3] -> [2, 3, 4]
-        -1.0, -1.0, +0.0, //0 -> Far left
-        -0.5, -1.0, +1.0, //1 -> Near left
-        +0.0, -1.0, -1.0, //2 -> Far point
-        +0.5, -1.0, +1.0, //3 -> Near right
-        +1.0, -1.0, +0.0, //4 -> Far right
+        //Base -> [0, 1, 2] -> [2, 3, 0] -> [3, 4, 0]
+        +0.0, -1.0, -1.0, //0 - Far point
+        -1.0, -1.0, +0.0, //1 - Far right
+        -0.5, -1.0, +1.0, //2 - Near right
+        +0.5, -1.0, +1.0, //3 - Near left
+        +1.0, -1.0, +0.0, //4 - Far left
 
         //Front face
+        -0.5, -1.0, +1.0, //5 - Near right
+        +0.5, -1.0, +1.0, //6 - Near left
+        +0.0, +1.0, +0.0, //7 - Tip Top
 
         //Right front face
+        -1.0, -1.0, +0.0, //8 - Far right
+        -0.5, -1.0, +1.0, //9 - Near right
+        +0.0, +1.0, +0.0, //10 - Tip Top
 
         //Right back face
+        +0.0, -1.0, -1.0, //11 - Far point
+        -1.0, -1.0, +0.0, //12 - Far right
+        +0.0, +1.0, +0.0, //13 - Tip Top
 
         //Left back face
+        +0.0, -1.0, -1.0, //14 - Far point
+        +1.0, -1.0, +0.0, //15 - Far left
+        +0.0, +1.0, +0.0, //16 - Tip Top
 
         //Left front face
+        +0.5, -1.0, +1.0, //17 - Near left
+        +1.0, -1.0, +0.0, //18 - Far left
+        +0.0, +1.0, +0.0, //19 - Tip Top
     ];
+    console.log(vertices);
+
     //Define vertex colors
     let colors = [
         [1.0, 0.0, 0.0, 1.0], //Base
@@ -81,23 +115,191 @@ function createPyramid(gl, transformation, rotation) {
     ];
     let vertexColors = [];
     //Assign a color to each vertex of the shape, in this case 5 vertices for the base and 3 for each triangle
+    let isBase = true;
+    colors.forEach(color => {
+        if (!isBase) {
+            for (let i = 0; i < 3; i++)
+                vertexColors.push(...color);
+        }
+        else {
+            isBase = false;
+            for (let i = 0; i < 5; i++)
+                vertexColors.push(...color);
+        }
 
+    });
+    console.log(vertexColors);
+
+    //Define indices
+    let indices = [
+        0, 1, 2,        //Base
+        2, 3, 0,        //Base
+        3, 4, 0,        //Base
+        ////////////
+        5, 6, 7,        //Front face
+        8, 9, 10,       //Right near
+        11, 12, 13,     //Right far
+        14, 15, 16,     //Left far
+        17, 18, 19      //Left near
+    ];
+    console.log(indices);
 
     //Create, bind, pass data, unbind buffers
     //Vertex buffer
     let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
     //Color buffer
     let colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColors);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexColors), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
     //Index buffer
     let indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    let pyramid = {
+        buffer: vertexBuffer, colorBuffer: colorBuffer, indices: indexBuffer,
+        vertSize: 3, nVerts: vertices.length / 3, colorSize: 4, nColors: 12, nIndices: indices.length,
+        primtype: gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime: Date.now()
+    };
+
+    mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
+
+    pyramid.update = function () {
+        let now = Date.now();
+        let deltat = now - this.currentTime;
+        this.currentTime = now;
+        let fract = deltat / duration;
+        let angle = Math.PI * 2 * fract;
+
+        // Rotates a mat4 by the given angle
+        // mat4 out the receiving matrix
+        // mat4 a the matrix to rotate
+        // Number rad the angle to rotate the matrix by
+        // vec3 axis the axis to rotate around
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotation);
+    };
+
+    return pyramid;
+}
+
+/**
+ * 
+ * @param {WebGLRenderingContext} gl
+ * @param {vec3} translation
+ * @param {vec3} rotation
+ */
+function createDodecahedron(gl, translation, rotation) {
+    //Step 1 -> Define geometry
+    let vertices = [
+        //Front face
+        +0.00, +0.75, +1.00,    //0 -> Top front
+        -0.75, +0.00, +1.00,    //1 -> Top front left
+        -0.50, -0.75, +1.00,    //2 -> Bottom front left
+        +0.50, -0.75, +1.00,    //3 -> Bottom front right
+        +0.75, +0.00, +1.00,    //4 -> Top front left
+
+        //Bottom front face
+        -0.50, -0.75, +1.00,    //5 -> Bottom front left
+        +0.50, -0.75, +1.00,    //6 -> Bottom front right
+        +0.00, -1.00, +0.00,    //7 -> Lowest point
+        -0.75, -0.90, +0.50,    //8 -> Bottom front left
+        +0.75, -0.90, +0.50,    //9 -> Bottom front right
+
+        //Bottom back face
+        -0.50, -0.75, -1.00,    //10 -> Bottom back left
+        +0.50, -0.75, -1.00,    //11 -> Bottom back right
+        +0.00, -1.00, +0.00,    //12 -> Lowest point
+        -0.75, -0.90, -0.50,    //13 -> Bottom back left
+        +0.75, -0.90, -0.50,    //14 -> Bottom back right
+
+        //Back face
+        +0.00, +0.75, +1.00,    //0 -> Top back
+        -0.75, +0.00, +1.00,    //1 -> Top back left
+        -0.50, -0.75, +1.00,    //2 -> Bottom back left
+        +0.50, -0.75, +1.00,    //3 -> Bottom back right
+        +0.75, +0.00, +1.00,    //4 -> Top back left
+    ];
+
+    let faceColors = [
+        [0.5, 0.0, 0.0, 1.0],
+        [0.0, 0.5, 0.0, 1.0],
+        [0.0, 0.0, 0.5, 1.0],
+        [0.5, 0.5, 0.0, 1.0],
+        [0.5, 0.0, 0.5, 1.0],
+        [0.0, 0.5, 0.5, 1.0],
+        [1.0, 0.0, 0.0, 1.0],
+        [0.0, 1.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0, 1.0],
+        [1.0, 1.0, 0.0, 1.0],
+        [0.0, 1.0, 1.0, 1.0],
+        [1.0, 0.0, 1.0, 1.0]
+    ];
+
+    let colors = [];
+    faceColors.forEach(color => {
+        for (let i = 0; i < 5; i++)
+            colors.push(...color);
+    });
+
+    let indices = [
+        0, 1, 2,
+        2, 3, 0,
+        0, 3, 4,
+
+        5, 6, 7,
+        5, 7, 8,
+        6, 7, 9,
+
+        10, 11, 12,
+        10, 12, 13,
+        11, 12, 14,
+
+
+    ];
+
+    let vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    let colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    let indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    let dode = {
+        buffer: vertexBuffer, colorBuffer: colorBuffer, indices: indexBuffer,
+        vertSize: 3, nVerts: vertices.length / 3, colorSize: 4, nColors: 1, nIndices: indices.length,
+        primtype: gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime: Date.now()
+    };
+
+    mat4.translate(dode.modelViewMatrix, dode.modelViewMatrix, translation);
+
+    dode.update = function () {
+        let now = Date.now();
+        let deltat = now - this.currentTime;
+        this.currentTime = now;
+        let fract = deltat / duration;
+        let angle = Math.PI * 2 * fract;
+
+        // Rotates a mat4 by the given angle
+        // mat4 out the receiving matrix
+        // mat4 a the matrix to rotate
+        // Number rad the angle to rotate the matrix by
+        // vec3 axis the axis to rotate around
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotation);
+    };
+
+    return dode;
 }
 
 //Main function
@@ -111,18 +313,19 @@ $(document).ready(
 
         //Step 2 -> Clear the canvas background and initialize the viewport
         initViewport(gl, canvas);
+        initGL(canvas);
 
         //Step 3 -> Create geometries and buffers
+        let pyramid = createPyramid(gl, [-3, 0, -4], [0.1, 1.0, 0.2]);
+        let dode = createDodecahedron(gl, [0, 0, -4], [0.0, 0.1, 0.0]);
 
+        //Initialize shader
+        initShader(gl);
+        run(gl, [dode]);
     }
 )
 
-
-let projectionMatrix;
-
-let shaderProgram, shaderVertexPositionAttribute, shaderVertexColorAttribute, shaderProjectionMatrixUniform, shaderModelViewMatrixUniform;
-
-let duration = 5000; // ms
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Attributes: Input variables used in the vertex shader. Since the vertex shader is called on each vertex, these will be different every time the vertex shader is invoked.
 // Uniforms: Input variables for both the vertex and fragment shaders. These do not change values from vertex to vertex.
