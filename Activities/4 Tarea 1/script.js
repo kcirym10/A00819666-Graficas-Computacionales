@@ -200,7 +200,7 @@ function createDodecahedron(gl, translation, rotation) {
         -0.75, +0.00, +1.00,    //1 -> Top front left
         -0.50, -0.75, +1.00,    //2 -> Bottom front left
         +0.50, -0.75, +1.00,    //3 -> Bottom front right
-        +0.75, +0.00, +1.00,    //4 -> Top front left
+        +0.75, +0.00, +1.00,    //4 -> Top front right
 
         //Bottom front face
         -0.50, -0.75, +1.00,    //5 -> Bottom front left
@@ -217,11 +217,30 @@ function createDodecahedron(gl, translation, rotation) {
         +0.75, -0.90, -0.50,    //14 -> Bottom back right
 
         //Back face
-        +0.00, +0.75, +1.00,    //0 -> Top back
-        -0.75, +0.00, +1.00,    //1 -> Top back left
-        -0.50, -0.75, +1.00,    //2 -> Bottom back left
-        +0.50, -0.75, +1.00,    //3 -> Bottom back right
-        +0.75, +0.00, +1.00,    //4 -> Top back left
+        +0.00, +0.75, -1.00,    //15 -> Top back
+        -0.75, +0.00, -1.00,    //16 -> Top back left
+        -0.50, -0.75, -1.00,    //17 -> Bottom back left
+        +0.50, -0.75, -1.00,    //18 -> Bottom back right
+        +0.75, +0.00, -1.00,    //19 -> Top back left
+
+        //Front top left face
+        +0.00, +0.75, +1.00,    //20 -> Front top
+        -0.50, +1.00, +0.00,    //21 -> Top left
+        +0.50, +1.00, +0.00,    //22 -> Top right
+        +0.75, +0.90, +0.50,    //23 -> Front top right
+        -0.75, +0.90, +0.50,    //24 -> Front top left
+
+        //Back top face
+        +0.00, +0.75, -1.00,    //25 -> Back top
+        -0.50, +1.00, +0.00,    //26 -> Back top left
+        +0.50, +1.00, +0.00,    //27 -> Back top right
+        +0.75, +0.90, -0.50,    //28 -> Back top right
+        -0.75, +0.90, -0.50,    //29 -> Back top left
+
+        //Front left top face
+        +0.00, +0.75, +1.00,    //30 -> Front top
+        +0.75, +0.00, +1.00,    //31 -> Top front right
+        +1.00, +0.50, +0.00,    //32 -> Farthest right
     ];
 
     let faceColors = [
@@ -246,19 +265,34 @@ function createDodecahedron(gl, translation, rotation) {
     });
 
     let indices = [
+        //Front
         0, 1, 2,
         2, 3, 0,
         0, 3, 4,
-
+        //Bottom front
         5, 6, 7,
         5, 7, 8,
         6, 7, 9,
-
+        //Bottom back
         10, 11, 12,
         10, 12, 13,
         11, 12, 14,
+        //Back
+        15, 16, 17,
+        17, 18, 15,
+        15, 18, 19,
+        //Top front
+        20, 21, 22,
+        20, 21, 24,
+        20, 22, 23,
 
+        //Top back
+        25, 26, 27,
+        25, 26, 29,
+        25, 27, 28,
 
+        //Front top left
+        30, 31, 32
     ];
 
     let vertexBuffer = gl.createBuffer();
