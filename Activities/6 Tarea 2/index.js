@@ -104,6 +104,8 @@ class Celestial extends THREE.Object3D {
 class AsteriodBelt extends THREE.Object3D {
     constructor(dist = 0, asteroidCount = 0) {
         super();
+        this.speed = 1000;
+        this.orbitPeriod = 2000;
         this.dist = dist;
         this.asteroidCount = asteroidCount;
         this.offset = 2 * Math.PI / asteroidCount;
@@ -112,11 +114,11 @@ class AsteriodBelt extends THREE.Object3D {
     }
 
     getPosition(i) {
-        return [2 * this.dist * Math.cos(this.offset * i), Math.random() * 0.5, 2 * this.dist * Math.sin(this.offset * i)];
+        return [-4 + 8 * Math.random() + (2 * this.dist * Math.cos(this.offset * i)), -4 + Math.random() * 8, -4 + 8 * Math.random() + (2 * this.dist * Math.sin(this.offset * i))];
     }
 
     createAsteroids() {
-        let geo = new THREE.SphereGeometry(Math.random() * 3 + 1, 20, 20),
+        let geo = new THREE.SphereGeometry(Math.random() * 2 + 1, 20, 20),
             texture = new THREE.TextureLoader().load(this.textureURL),
             mat = new THREE.MeshLambertMaterial({ map: texture });
         console.log(this.textureURL);
@@ -133,7 +135,7 @@ class AsteriodBelt extends THREE.Object3D {
     }
 
     rotate() {
-        return;
+        this.rotation.y += speedControl / this.speed  / this.orbitPeriod;
     }
     orbit() {
         return;
@@ -209,6 +211,11 @@ $(document).ready(
                 Mars: new Celestial(false, [3.390, 0.0125, 0.13], [sunRad + 228, 6.00, 4.64], [1.03, unkownRP, unkownRP], [686.2, 0.8, 0.125], true, 2,
                     [0, moonOffset], ['Materials/mars-texture.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-texture.jpg']),
                 AstBelt: new AsteriodBelt(sunRad + 400, 1000),
+                AstBelt2: new AsteriodBelt(sunRad + 405, 1000),
+                AstBelt3: new AsteriodBelt(sunRad + 410, 1000),
+                AstBelt4: new AsteriodBelt(sunRad + 415, 1000),
+                AstBelt5: new AsteriodBelt(sunRad + 420, 1000),
+                AstBelt6: new AsteriodBelt(sunRad + 425, 1000),
                 //53 Moons - ONLY adding 4
                 //Io, Europa
                 Jupiter: new Celestial(false, [69.911, 2.00, 1.593], [sunRad + 780, 70.173, 70.582], [0.41, unkownRP, unkownRP], [4328.9, 1.75, 0.146], true, 2,
