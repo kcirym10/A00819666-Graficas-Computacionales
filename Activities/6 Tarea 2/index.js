@@ -14,7 +14,9 @@ let scene = null,
     camera = null,
     renderer = null,
     controls = null,
-    speedControl = 100;
+    speedControl = 100,
+    follow = false,
+    following = '';
 
 class Celestial extends THREE.Object3D {
     constructor(emmitsLight = false, radius = [], dist = [], rotationPeriod = [], orbitPeriod = [], hasMoons = false, moonCount = 0, moonPosAngle = [], textureURL = [],
@@ -39,13 +41,14 @@ class Celestial extends THREE.Object3D {
     createCelestial() {
         let geo = new THREE.SphereGeometry(this.radius[0], 100, 100),
             texture = new THREE.TextureLoader().load(this.textureURL[0]),
-            mat = new THREE.MeshLambertMaterial({ map: texture });
+            bumpTexture = new THREE.TextureLoader().load(this.textureURL[1]),
+            mat = new THREE.MeshPhongMaterial({ map: texture, bumpMap: bumpTexture, bumpScale: 0.1 });
 
         //Only the sun emmits light
         if (this.emmitsLight) {
             texture.wrapS = THREE.ReapeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(2, 1);
+            texture.repeat.set(3, 4);
             mat.emissive = new THREE.Color(1, 1, 1);
             mat.emissiveMap = texture;
             let light = new THREE.PointLight(0xffffff, 1);
@@ -68,7 +71,7 @@ class Celestial extends THREE.Object3D {
                         false,
                         0,
                         this.moonPosAngle[i - 1],
-                    [this.textureURL[i]]);
+                    [this.textureURL[i * 2], this.textureURL[i * 2 + 1]]);
 
                 //Set moons position
                 moon.position.set(this.dist[i] + this.dist[i] * Math.cos(this.moonPosAngle[i - 1]), 0, this.dist[i] + this.dist[i] * Math.sin(this.moonPosAngle[i - 1]));
@@ -121,7 +124,6 @@ class AsteriodBelt extends THREE.Object3D {
         let geo = new THREE.SphereGeometry(Math.random() * 2 + 1, 20, 20),
             texture = new THREE.TextureLoader().load(this.textureURL),
             mat = new THREE.MeshLambertMaterial({ map: texture });
-        console.log(this.textureURL);
 
         for (let i = 0; i < this.asteroidCount; i++) {
             let obj = new THREE.Mesh(geo, mat);
@@ -131,7 +133,6 @@ class AsteriodBelt extends THREE.Object3D {
 
             this.add(obj);
         }
-        console.log(this);
     }
 
     rotate() {
@@ -156,7 +157,7 @@ function initCanvas() {
  * 
  * @param {HTMLCanvasElement} canvas
  */
-function initScene(canvas, Earth) {
+function initScene(canvas) {
     //Create scene
     scene = new THREE.Scene();
     scene.background - new THREE.Color(0.2, 0.2, 0.2);
@@ -164,7 +165,7 @@ function initScene(canvas, Earth) {
     //Create perspective camera
     camera = new THREE.PerspectiveCamera(90, canvas.width / canvas.height, 0.1, 10000);
     //camera.position.set(Earth.position.x, 1000, 500);
-    camera.position.set(Earth.position.x, 500, 0);
+    camera.position.set(0, 1000, 700);
     scene.add(camera);
 
     //Ambient light for testing
@@ -177,13 +178,13 @@ function initScene(canvas, Earth) {
 
     //Create OrbitControls
     controls = new THREE.OrbitControls(camera, canvas);
-    controls.target.set(Earth.position.x, Earth.position.y, Earth.position.z);
+    controls.target.set(0, 0, 0);
     controls.update();
 }
 
 function createOrbits(dist) {
-    let orbit = new THREE.TorusGeometry(dist, 0.1, 8, 200),
-        mat = new THREE.MeshBasicMaterial({ emissive: new THREE.Color(1, 1, 1) }),
+    let orbit = new THREE.TorusGeometry(dist, 0.05, 8, 400),
+        mat = new THREE.MeshLambertMaterial({ emissive: new THREE.Color(1, 1, 1) }),
         ring = new THREE.Mesh(orbit, mat);
 
     ring.rotation.x = Math.PI / 2;
@@ -194,22 +195,21 @@ $(document).ready(
     function () {
         let canvas = initCanvas(),
             solarSystem = new THREE.Object3D,
-            //sunRad = 696.340;
-
-            sunRad = 396.340,
+            sunRad = 696.340,
             unkownRP = 0.00001, //Unkown rotation period
             moonOffset = Math.PI / 4; //In case any moons may overlap
-        //console.log(sunRad);
+
             let CelBodies = {
-                Sun: new Celestial(true, [sunRad], [0], [27], [0], false, 0, [], ['Materials/sun-texture.jpg']),
-                Mercury: new Celestial(false, [2.440], [sunRad + 57], [58.6], [87.97], false, 0, [], ['Materials/mercury-texture.jpg']),
-                Venus: new Celestial(false, [6.052], [sunRad + 108], [243], [224.7], false, 0, [], ['Materials/venus-texture.jpg']),
+                Sun: new Celestial(true, [sunRad], [0], [27], [0], false, 0, [], ['Materials/sun-texture.jpg', 'Materials/sun-texture.jpg']),
+                Mercury: new Celestial(false, [2.440], [sunRad + 57], [58.6], [87.97], false, 0, [], ['Materials/mercury-texture.jpg', 'Materials/mercury-bump.jpg']),
+                Venus: new Celestial(false, [6.052], [sunRad + 108], [243], [224.7], false, 0, [], ['Materials/venus-texture.jpg', 'Materials/venus-bump.jpg']),
                 //1 Moon
                 Earth: new Celestial(false, [6.371, 1.737], [sunRad + 149, 6.755], [0.99, 27], [365.26, 29], true, 1,
-                    [0], ['Materials/earth-texture.jpg', 'Materials/moon-texture.jpg']),
+                    [0], ['Materials/earth-texture.jpg', 'Materials/earth-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg']),
                 //2 Moons
                 Mars: new Celestial(false, [3.390, 0.0125, 0.13], [sunRad + 228, 6.00, 4.64], [1.03, unkownRP, unkownRP], [686.2, 0.8, 0.125], true, 2,
-                    [0, moonOffset], ['Materials/mars-texture.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-texture.jpg']),
+                    [0, moonOffset], ['Materials/mars-texture.jpg', 'Materials/mars-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg']),
                 AstBelt: new AsteriodBelt(sunRad + 400, 1000),
                 AstBelt2: new AsteriodBelt(sunRad + 405, 1000),
                 AstBelt3: new AsteriodBelt(sunRad + 410, 1000),
@@ -219,17 +219,17 @@ $(document).ready(
                 //53 Moons - ONLY adding 4
                 //Io, Europa
                 Jupiter: new Celestial(false, [69.911, 2.00, 1.593], [sunRad + 780, 70.173, 70.582], [0.41, unkownRP, unkownRP], [4328.9, 1.75, 0.146], true, 2,
-                    [0, moonOffset], ['Materials/jupiter-texture.jpg', 'Materials/io-moon-texture.jpg', 'Materials/europa-moon-texture.jpg']),
-                Saturn: new Celestial(false, [58.232], [sunRad + 1437], [0.45], [10752.9], false, 0, [], ['Materials/saturn-texture.jpg']),
-                Uranus: new Celestial(false, [25.362], [sunRad + 4530], [0.72], [30663.65], false, 0, [], ['Materials/uranus-texture.jpg']),
-                Neptune: new Celestial(false, [24.622], [sunRad + 2871], [0.67], [60148.35], false, 0, [], ['Materials/neptune-texture.jpg']),
-                Pluto: new Celestial(false, [1.188], [sunRad + 5925], [6.39], [90735.35], false, 0, [], ['Materials/pluto-texture.jpg'])
+                    [0, moonOffset], ['Materials/jupiter-texture.jpg', 'Materials/jupiter-bump.jpg', 'Materials/io-moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/europa-moon-texture.jpg', 'Materials/moon-bump.jpg']),
+                Saturn: new Celestial(false, [58.232], [sunRad + 1437], [0.45], [10752.9], false, 0, [], ['Materials/saturn-texture.jpg', 'Materials/saturn-bump.jpg']),
+                Uranus: new Celestial(false, [25.362], [sunRad + 4530], [0.72], [30663.65], false, 0, [], ['Materials/uranus-texture.jpg', 'Materials/uranus-bump.jpg']),
+                Neptune: new Celestial(false, [24.622], [sunRad + 2871], [0.67], [60148.35], false, 0, [], ['Materials/neptune-texture.jpg', 'Materials/pluto-bump.jpg']),
+                Pluto: new Celestial(false, [1.188], [sunRad + 5925], [6.39], [90735.35], false, 0, [], ['Materials/pluto-texture.jpg', 'Materials/pluto-bump.jpg'])
             };
 
-        initScene(canvas, CelBodies.Earth);
+        initScene(canvas);
 
         scene.add(solarSystem);
-        console.log(CelBodies['Jupiter']);
 
         for (body in CelBodies) {
             solarSystem.add(CelBodies[body]);
@@ -251,7 +251,14 @@ function animate(CelBodies) {
 
 function run(CelBodies) {
     requestAnimationFrame(() => run(CelBodies));
-
+    follow = false;
+    following = 'Pluto';
+    if (follow) {
+        camera.position.set(CelBodies[following].position.x - CelBodies[following].radius[0] * 2,
+            CelBodies[following].position.y + CelBodies[following].radius[0],
+            CelBodies[following].position.z);
+        controls.target = CelBodies[following].position;
+    }
     controls.update();
 
     animate(CelBodies);

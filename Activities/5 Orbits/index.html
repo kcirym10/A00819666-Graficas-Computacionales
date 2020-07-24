@@ -4,22 +4,23 @@
     <meta charset="utf-8" />
     <title>A00819666 - Orbits</title>
     <!--All included files-->
-    <link href="./styles.css" rel="stylesheet" />
+    <!--<link href="./styles.css" rel="stylesheet" />-->
     <script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
     <script src="../libs/three.js/three.js"></script>
-    <script type="module" src="eventHandlers.js"></script>
-    <script type="module" src="./script.js"></script>
+    <!--Added after all elements have loaded-->
+    <script src="eventHandlers.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
     <div id="sideMenu">
-        <button id="add">Add</button>
-        <button id="satellite">Satellite</button>
-        <button id="clear">Clear</button>
+        <button id="Add">Add</button>
+        <button id="Satellite">Satellite</button>
+        <button id="Clear">Clear</button>
     </div>
-    <canvas id="myCanvas"></canvas>
+    <canvas id="myCanvas" width="800" height="600"></canvas>
     <div id="footMenu">
         <span>Object scale</span>
-        <input id="scale" type="range" min="0.1" max="2" value="1" />
+        <input id="Scale" type="range" min="0.1" max="2" value="1" step="0.1" />
     </div>
 </body>
 </html>
