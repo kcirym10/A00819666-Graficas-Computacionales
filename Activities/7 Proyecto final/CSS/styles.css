@@ -1,3 +1,7 @@
-﻿body
-{
+﻿canvas{
+    width: 100vw;
+    height: 100vh;
+}
+::-webkit-scrollbar{
+    width: 0;
 }
