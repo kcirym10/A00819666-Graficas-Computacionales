@@ -4,7 +4,12 @@ let canvas = null,
     scene = null,
     camera = null,
     renderer = null,
-    player = null;
+    player = null,
+    //Material loader
+    mtlLoader = new THREE.MTLLoader(),
+    //Object loader
+    objLoader = new THREE.OBJLoader(),
+    game = null;
 
 
 $(document).ready(
@@ -12,8 +17,12 @@ $(document).ready(
         initCanvas();
         initScene(canvas);
 
-        player = new Player();
-        scene.add(player);
+        game = new Game();
+        zombie = new Zombie();
+
+        scene.add(zombie);
+
+        console.log(player);
 
         run();
     }
@@ -21,10 +30,22 @@ $(document).ready(
 
 function run() {
     requestAnimationFrame(() => run());
+    if (!game.isPaused) {
+        update();
 
-    update();
+        for (let i = 0; i < player.rays.length; i++) {
+            if (player.rays.length > 0) {
+                
+                //console.log('Position: ', player.controls.getObject().position);
+                //console.log('Ray: ', player.rays[i].ray.origin);
 
-    renderer.render(scene, camera);
+                console.log(player.rays[i].intersectObjects(scene.children))
+            }
+        }
+        
+
+        renderer.render(scene, camera);
+    };
 }
 
 function update() {

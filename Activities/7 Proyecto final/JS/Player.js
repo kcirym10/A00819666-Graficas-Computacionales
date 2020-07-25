@@ -3,7 +3,7 @@ class Player extends THREE.Object3D {
     constructor() {
         super();
         //Player properties
-        this.moveSpeed = 1;
+        this.moveSpeed = 0.1;
         this.isMoving = false;
         this.isForward = false;
         this.isBackward = false;
@@ -13,15 +13,26 @@ class Player extends THREE.Object3D {
         this.isAiming = false;
         this.weaponIndex = null; //NEED WEAPON
 
-        this.add(this.body());
+        //this.add(this.body());
 
         //Attach controls to the player
         this.controls = new THREE.PointerLockControls(camera, canvas);
         initControls();
+
+        this.direction = [new THREE.Vector3(0, 0, 1)];
+        this.rays = this.setRays();
+    }
+
+    setRays() {
+        let rays = [];
+        for (let i = 0; i < 2 * Math.PI; i += Math.PI / 4) {
+            rays.push(new THREE.Raycaster(new THREE.Vector3(this.position.x, 1.5, this.position.z), new THREE.Vector3(0, i, 0), 0.1, 0.2));
+        }
+        return rays;
     }
 
     body() {
-        let geo = new THREE.BoxGeometry(1, 1, 1),
+        let geo = new THREE.BoxGeometry(100, 100, 100),
             mat = new THREE.MeshLambertMaterial();
 
         return (new THREE.Mesh(geo, mat));
@@ -29,16 +40,35 @@ class Player extends THREE.Object3D {
 
     //Control movement
     move() {
-        if (this.isForward)
-            this.controls.moveForward(this.moveSpeed);
-        if (this.isBackward)
-            this.controls.moveForward(-this.moveSpeed);
-        if (this.isRight)
-            this.controls.moveRight(this.moveSpeed);
-        if (this.isLeft)
-            this.controls.moveRight(-this.moveSpeed);
+        for (let i = 0; i < this.rays.length; i++) {
+            this.rays[i].ray.origin.copy(this.position);
+            this.rays[i].ray.origin.y = -0.1;
+            //let direction = this.controls.getDirection(new THREE.Vector3(0, 0, 0)).clone();
+            //console.log(direction);
+        }
+        //Get movement direction from controls
+        
+        
 
-        this.position.set(this.controls.position);
+        if (this.isForward) {
+            this.controls.moveForward(this.moveSpeed);
+        }
+        if (this.isBackward) {
+            this.controls.moveForward(-this.moveSpeed);
+        }
+        if (this.isRight) {
+            this.controls.moveRight(this.moveSpeed / 2);
+        }
+        if (this.isLeft) {
+            this.controls.moveRight(-this.moveSpeed / 2);
+        }
+
+        this.position.set(camera.position.x, 0, camera.position.z);
+    }
+
+    //Shoot gun
+    shoot() {
+
     }
 
     //Toggle aiming

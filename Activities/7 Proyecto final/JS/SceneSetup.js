@@ -12,6 +12,7 @@ function initScene() {
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.y = 1.8;
+    camera.rotation.y = Math.PI / 2;
     scene.add(camera);
 
     let light = new THREE.AmbientLight(0xffffff, 0.1);
@@ -27,8 +28,4 @@ function initScene() {
     scene.add(plane);
 
     listen();
-}
-
-function gameSetup() {
-    
 }

@@ -4,6 +4,8 @@ function initControls() {
     //Unlock controls
     window.addEventListener('click', function () {
         player.controls.lock();
+        game.isPaused = false;
+        canvas.hidden = false;
     }, false);
     //When controls locked
 
@@ -71,6 +73,7 @@ function onMouseDown(event) {
         switch (event.which) {
             case 1:
                 player.isShooting = true;
+                console.log(player.position);
                 break;
             case 3:
                 console.log('down');
