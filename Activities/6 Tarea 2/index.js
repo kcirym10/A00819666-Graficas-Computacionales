@@ -199,6 +199,7 @@ $(document).ready(
             unkownRP = 0.00001, //Unkown rotation period
             moonOffset = Math.PI / 8; //In case any moons may overlap
 
+        //Define each planet in the solar system
             let CelBodies = {
                 Sun: new Celestial(true, [sunRad], [0], [27], [0], false, 0, [], ['Materials/sun-texture.jpg', 'Materials/sun-texture.jpg']),
                 Mercury: new Celestial(false, [2.440], [sunRad + 57], [58.6], [87.97], false, 0, [], ['Materials/mercury-texture.jpg', 'Materials/mercury-bump.jpg']),
