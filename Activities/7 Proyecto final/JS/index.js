@@ -5,24 +5,32 @@ let canvas = null,
     camera = null,
     renderer = null,
     player = null,
-    //Material loader
-    mtlLoader = new THREE.MTLLoader(),
-    //Object loader
-    objLoader = new THREE.OBJLoader(),
-    game = null;
+    gltfLoader = new THREE.GLTFLoader(),
+    game = null,
+    map = null,
+    objects = [],
+    weapons = [
+        new Weapon(0, 15, false, 0.5)       //Pistol
+    ];
 
 
 $(document).ready(
     function () {
+        //Get the canvas
         initCanvas();
+        //Initialize all basic elements
         initScene(canvas);
 
         game = new Game();
-        zombie = new Zombie();
+        game.newGame();
 
-        scene.add(zombie);
-
-        console.log(player);
+        //for (let i = 0; i < 10; i++) {
+        //    let box = (new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshLambertMaterial()));
+        //    box.name = 'box';
+        //    box.position.set(Math.random() * 40 - 20, 2, Math.random() * 40 - 20);
+        //    scene.add(box);
+        //    objects.push(box);
+        //}
 
         run();
     }
@@ -33,25 +41,12 @@ function run() {
     if (!game.isPaused) {
         update();
 
-        for (let i = 0; i < player.rays.length; i++) {
-            if (player.rays.length > 0) {
-                
-                //console.log('Position: ', player.controls.getObject().position);
-                //console.log('Ray: ', player.rays[i].ray.origin);
-
-                console.log(player.rays[i].intersectObjects(scene.children))
-            }
-        }
-        
-
         renderer.render(scene, camera);
     };
 }
 
 function update() {
-    if (player.isMoving)
-        player.move();
 
-    if (player.isAiming)
-        player.aim();
+    player.update();
+
 }

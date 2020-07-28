@@ -4,10 +4,23 @@ function initControls() {
     //Unlock controls
     window.addEventListener('click', function () {
         player.controls.lock();
-        game.isPaused = false;
+        game.togglePause();
         canvas.hidden = false;
     }, false);
-    //When controls locked
+
+    //ADD PLAYER CONTROLS EVENT LISTENERS FROM EXAMPLE
+
+    //player.controls.addEventListener('lock', function () {
+    //    player.controls.lock();
+    //    game.togglePause();
+    //    alert('unpaused');
+    //}, false);
+    ////When controls locked
+    //player.controls.addEventListener('unlock', function () {
+    //    player.controls.lock();
+    //    game.togglePause();
+    //    alert('paused');
+    //}, false);
 
 }
 
@@ -73,7 +86,7 @@ function onMouseDown(event) {
         switch (event.which) {
             case 1:
                 player.isShooting = true;
-                console.log(player.position);
+                //console.log(player.controls.getObject().position);
                 break;
             case 3:
                 console.log('down');
@@ -103,8 +116,16 @@ function onMouseUp(event) {
 }
 
 function onScroll(event) {
-    if (player.controls.isLocked)
-        alert('Scroll');
+    
+    if (!game.paused) {
+        console.log('in');
+        if (player.activeWeapon === 0)
+            player.activeWeapon = 1;
+        else
+            player.activeWeapon = 0;
+        console.log(player.activeWeapon);
+    }
+    console.log('out'); 
 }
 
 function listen() {
