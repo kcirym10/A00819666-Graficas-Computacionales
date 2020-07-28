@@ -197,7 +197,7 @@ $(document).ready(
             solarSystem = new THREE.Object3D,
             sunRad = 696.340,
             unkownRP = 0.00001, //Unkown rotation period
-            moonOffset = Math.PI / 4; //In case any moons may overlap
+            moonOffset = Math.PI / 8; //In case any moons may overlap
 
             let CelBodies = {
                 Sun: new Celestial(true, [sunRad], [0], [27], [0], false, 0, [], ['Materials/sun-texture.jpg', 'Materials/sun-texture.jpg']),
@@ -218,13 +218,49 @@ $(document).ready(
                 AstBelt6: new AsteriodBelt(sunRad + 425, 1000),
                 //53 Moons - ONLY adding 4
                 //Io, Europa
-                Jupiter: new Celestial(false, [69.911, 2.00, 1.593], [sunRad + 780, 70.173, 70.582], [0.41, unkownRP, unkownRP], [4328.9, 1.75, 0.146], true, 2,
-                    [0, moonOffset], ['Materials/jupiter-texture.jpg', 'Materials/jupiter-bump.jpg', 'Materials/io-moon-texture.jpg', 'Materials/moon-bump.jpg',
-                        'Materials/europa-moon-texture.jpg', 'Materials/moon-bump.jpg']),
-                Saturn: new Celestial(false, [58.232], [sunRad + 1437], [0.45], [10752.9], false, 0, [], ['Materials/saturn-texture.jpg', 'Materials/saturn-bump.jpg']),
-                Uranus: new Celestial(false, [25.362], [sunRad + 4530], [0.72], [30663.65], false, 0, [], ['Materials/uranus-texture.jpg', 'Materials/uranus-bump.jpg']),
-                Neptune: new Celestial(false, [24.622], [sunRad + 2871], [0.67], [60148.35], false, 0, [], ['Materials/neptune-texture.jpg', 'Materials/pluto-bump.jpg']),
-                Pluto: new Celestial(false, [1.188], [sunRad + 5925], [6.39], [90735.35], false, 0, [], ['Materials/pluto-texture.jpg', 'Materials/pluto-bump.jpg'])
+                Jupiter: new Celestial(false,
+                    [69.911, 2.00, 1.593, 1.593, 1.593, 1.593, 1.593, 1.593, 0.582],
+                    [sunRad + 780, 70.173, 71.582, 73.582, 74.582, 76.582, 78.582, 79.582, 80.582],
+                    [0.41, unkownRP, unkownRP * 2, unkownRP, unkownRP * 2, unkownRP, unkownRP, unkownRP * 2, unkownRP * 2],
+                    [4328.9, 1.75, 0.146, 0.146, 0.146, 0.1, 0.06, 0.046, 0.0146], true, 8,
+                    [0, moonOffset, moonOffset * 2, moonOffset * 3, moonOffset * 4, moonOffset * 5, moonOffset * 6, moonOffset * 7],
+                    ['Materials/jupiter-texture.jpg', 'Materials/jupiter-bump.jpg', 'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg',
+                        'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg', 'Materials/io-moon-texture.jpg',
+                        'Materials/moon-bump.jpg', 'Materials/europa-moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-bump.jpg']),
+                Saturn: new Celestial(false,
+                    [58.232, 2.00, 1.593, 1.593, 1.593, 1.593, 1.593, 1.593, 0.582],
+                    [sunRad + 1437.70, 71.582, 63.582, 64.582, 66.582, 68.582, 69.582, 70.582],
+                    [0.45, unkownRP, unkownRP * 2, unkownRP, unkownRP * 2, unkownRP, unkownRP, unkownRP * 2, unkownRP * 2],
+                    [10752.9, 100.75, 0.146, 0.146, 0.146, 0.1, 0.06, 0.046, 0.0146], true, 7,
+                    [0, moonOffset, moonOffset * 2, moonOffset * 3, moonOffset * 4, moonOffset * 5, moonOffset * 6, moonOffset * 7],
+                    ['Materials/saturn-texture.jpg', 'Materials/saturn-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg']),
+                Uranus: new Celestial(false,
+                    [25.362, 1.5, 2, 4],
+                    [sunRad + 2871, 35, 40, 50],
+                    [0.72, unkownRP, unkownRP, unkownRP],
+                    [30663.65, 100, 30, 10], true, 3,
+                    [0, moonOffset, moonOffset * 2, moonOffset * 3, moonOffset * 4, moonOffset * 5, moonOffset * 6, moonOffset * 7],
+                    ['Materials/uranus-texture.jpg', 'Materials/uranus-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg']),
+                Neptune: new Celestial(false,
+                    [24.622, 0.5, 0.25, 0.7],
+                    [sunRad + 4530, 30, 32, 33],
+                    [0.67, unkownRP, unkownRP, unkownRP],
+                    [60148.35, 20, 10, 15], true, 3,
+                    [0, moonOffset, moonOffset * 2, moonOffset * 3, moonOffset * 4, moonOffset * 5, moonOffset * 6, moonOffset * 7],
+                    ['Materials/neptune-texture.jpg', 'Materials/pluto-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg']),
+                Pluto: new Celestial(false,
+                    [1.188, 0.7, 0.2, 0.4],
+                    [sunRad + 5925, 4, 7, 8],
+                    [6.39, unkownRP, unkownRP, unkownRP],
+                    [90735.35, 20, 4, 15], true, 3,
+                    [moonOffset, moonOffset * 2, moonOffset * 3],
+                    ['Materials/pluto-texture.jpg', 'Materials/pluto-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg', 'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg',
+                        'Materials/moon-texture.jpg', 'Materials/moon-bump.jpg'])
             };
 
         initScene(canvas);
