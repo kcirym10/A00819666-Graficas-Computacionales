@@ -47,6 +47,7 @@ function run() {
 
 function update() {
 
+    game.update();
     player.update();
 
 }

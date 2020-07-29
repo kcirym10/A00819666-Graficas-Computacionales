@@ -2,25 +2,25 @@
 //NEEDS WORK
 function initControls() {
     //Unlock controls
-    window.addEventListener('click', function () {
+    document.getElementById('start').addEventListener('click', function () {
         player.controls.lock();
-        game.togglePause();
-        canvas.hidden = false;
     }, false);
 
     //ADD PLAYER CONTROLS EVENT LISTENERS FROM EXAMPLE
 
-    //player.controls.addEventListener('lock', function () {
-    //    player.controls.lock();
-    //    game.togglePause();
-    //    alert('unpaused');
-    //}, false);
-    ////When controls locked
-    //player.controls.addEventListener('unlock', function () {
-    //    player.controls.lock();
-    //    game.togglePause();
-    //    alert('paused');
-    //}, false);
+    player.controls.addEventListener('lock', function () {
+        player.controls.lock();
+        game.paused = false;
+        document.getElementById('pauseScreen').style.visibility = "hidden";
+        canvas.style.visibility = "visible";
+    }, false);
+    //When controls locked
+    player.controls.addEventListener('unlock', function () {
+        player.controls.unlock();
+        game.paused = true;
+        document.getElementById('pauseScreen').style.visibility = "visible";
+        //canvas.style.visibility = "hidden";
+    }, false);
 
 }
 
@@ -118,14 +118,14 @@ function onMouseUp(event) {
 function onScroll(event) {
     
     if (!game.paused) {
-        console.log('in');
+        //console.log('in');
         if (player.activeWeapon === 0)
             player.activeWeapon = 1;
         else
             player.activeWeapon = 0;
         console.log(player.activeWeapon);
     }
-    console.log('out'); 
+    //console.log('out'); 
 }
 
 function listen() {

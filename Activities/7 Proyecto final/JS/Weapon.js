@@ -34,7 +34,7 @@ class Weapon extends THREE.Object3D {
 
                     if (!found && ancestor.name === 'Zombie') {
                         found = true;
-                        //console.log(ancestor);
+                        console.log(ancestor);
                         //scene.remove(ancestor);
                         ancestor.takeDmg(this.dmg);
                     }
