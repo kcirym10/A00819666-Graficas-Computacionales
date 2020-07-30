@@ -2,10 +2,11 @@
 
 class Game {
     constructor() {
+        this.spawnedZombies = 0;
         this.paused = true;
         this.isNewGame = true;
         this.round = 0;
-        this.zombiesPerRound = 24;
+        this.zombiesPerRound = 11;
         this.zombiesLeft = 0;
         this.activeZombies = 0;
 
@@ -14,15 +15,13 @@ class Game {
 
         //Spawn zombies into game
         this.spawnAreas = [
-            new THREE.Vector3(20, 0, -40),      //Front-Right
-            new THREE.Vector3(-10, 0, -45),     //Front
-            new THREE.Vector3(-40, 0, -35),     //Front-Left
-            new THREE.Vector3(-65, 0, 10),      //Left
-            new THREE.Vector3(-25, 0, 45),      //Back
-            new THREE.Vector3(-5, 0, 45),       //Back-Right
-            new THREE.Vector3(15, 0, 20)        //Left
+            new THREE.Vector3(0, 0, -50),       //North
+            new THREE.Vector3(50, 0, 0),        //East
+            new THREE.Vector3(0, 0, 50),        //South
+            new THREE.Vector3(-50, 0, 0)        //West
         ];
-        this.activeSpawns = 7;
+
+        this.activeSpawns = 4;
         this.spawnDelay = 1000; //ms
         this.roundDelay = 0;
         this.roundTimer = 0;
@@ -37,59 +36,19 @@ class Game {
     }
 
     loadGameArea() {
+        //Build game area
+        let geo = new THREE.TorusGeometry(50, 10, 5, 100, 2 * Math.PI),
+            mat = new THREE.MeshLambertMaterial(),
+            mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = Math.PI / 2;
+        scene.add(mesh);
 
-        //Load material
-        //mtlLoader.load(
-        //    'Models/mapa.mtl',
-        //    function (mat) {
-        //        mat.preload();
 
-                //Load object and attatch material
-                gltfLoader
-                    //.setMaterials(mat)
-                    .load(
-                        // resource URL
-                        'Models/map.glb',
-                        // called when resource is loaded
-                        function (object) {
-                            //object.traverse(function (child) {
-                            //    child.object.name = 'map';
-                            //    //child.matrixAutoUpdate = false;
-                            //});
-                            map = object.scene;
-                            map.name = "Map";
-                            map.scale.set(1.3, 1.3, 1.3);
-                            map.rotation.set(0, Math.PI, 0);
-                            map.updateMatrixWorld();
-                            scene.add(map);
-                        },
-                        // called when loading is in progresses
-                        function (xhr) {
-
-                            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-                        },
-                        // called when loading has errors
-                        function (error) {
-
-                            console.log('An error happened');
-
-                        });
-        //    }
-        //);
-
-        //Add lights to the scene
-        //let
-        //    spotLights = [
-        //        new THREE.SpotLight(0xffffff, 0.5)
-        //    ],
-        //    positions = [
-        //        new THREE.Vector3(-18, 2, 40)
-        //    ],
-        //    lightDirection = [
-        //        new THREE.Vector3(-18, 2, 40)
-        //    ];
-
+        //Reuse the same variables to create more geometry
+        //Create visual barriers
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 2), new THREE.MeshLambertMaterial());
+        mesh.position.z = -10;
+        scene.add(mesh);
     }
 
     togglePause() {
@@ -133,40 +92,48 @@ class Game {
             let pos = this.spawnAreas[Math.floor(Math.random() * this.activeSpawns)];
 
             zombie.name = "Zombie";
-            //zombie.position.set(pos.x, pos.y, pos.z);
-            zombie.position.set(0, 0, -10);
+            zombie.position.set(pos.x, pos.y, pos.z);
 
-            console.log(zombie.position);
             scene.add(zombie);
 
             ++this.activeZombies;
             this.zombies.push(zombie);
+            ++this.spawnedZombies;
+
+            this.spawnTimer = performance.now();
+
             console.log(zombie);
         }
     }
-    newRound() {
-        console.log('in')
-        this.zombiesLeft = 1;
+    newRound() { 
+        this.spawnedZombies = 0;
+        this.zombiesLeft = this.zombiesPerRound;
         this.activeZombies = 0;
         ++this.round;
+        document.getElementById('Round').innerHTML = "Round: " + this.round;
     }
 
     update() {
         if (!this.paused) {
-            
-
             //Starts a new round
             if (this.zombiesLeft === 0) {
-                this.roundTimer = performance.now();
                 this.newRound();
+                this.roundTimer = performance.now();
             }
 
-            if (this.activeZombies < 1 && this.zombiesLeft > 0 && performance.now() - this.roundTimer >= this.roundDelay) {
+            if (this.spawnedZombies < this.zombiesPerRound && this.activeZombies < 10 && this.zombiesLeft <= this.zombiesPerRound && performance.now() - this.roundTimer >= this.roundDelay) {
                 this.spawnZombie();
             }
 
             for (let i = 0; i < this.zombies.length; i++)
-                this.zombies[0].update();
+                this.zombies[i].update();
         }
+    }
+
+    gameOver() {
+        this.paused = true;
+        let gameOver = document.getElementById('GameOver');
+
+        gameOver.style.visibility = "visible";
     }
 }

@@ -10,7 +10,7 @@ let canvas = null,
     map = null,
     objects = [],
     weapons = [
-        new Weapon(0, 15, false, 0.5)       //Pistol
+        new Weapon(0, 15, false, 0.01, 'pistol', 64, 8);       //Pistol
     ];
 
 
@@ -38,7 +38,7 @@ $(document).ready(
 
 function run() {
     requestAnimationFrame(() => run());
-    if (!game.isPaused) {
+    if (!game.paused) {
         update();
 
         renderer.render(scene, camera);

@@ -2,10 +2,17 @@
 class Zombie extends THREE.Object3D {
     constructor() {
         super();
+        this.speed = 0.05;
         this.health = 100;
-        this.dmg = 45;
-        this.dimensions = 4.2;
+        this.dmg = 20;
+        this.dimensions = 0.015;
+        this.isForward = true;
+        this.isBackward = true;
+        this.isLeft = true;
+        this.isRight = true;
         this.instanceZombie();
+        this.verticalDisplacement = 0.5;
+        this.isFloatingDown = true;
     }
 
     //Called every frame
@@ -24,83 +31,18 @@ class Zombie extends THREE.Object3D {
     //Controls movement
     move() {
         //Check for collision
+        let pos = this.position;
 
-        //let rays = [];
-        //let pos = this.controls.getObject().position,
-        //    dir = this.controls.getDirection(new THREE.Vector3).clone();
+        //Reset movement flags
+        this.isForward = true;
+        this.isBackward = true;
+        this.isLeft = true;
+        this.isRight = true;
 
-        ////Create rays around player
-        //for (let i = 0; i < 8; i++) {
-        //    rays.push(
-        //        new THREE.Raycaster(new THREE.Vector3(pos.x, 1.8, pos.z),
-        //            new THREE.Vector3(
-        //                dir.x * Math.cos(-Math.PI / 4 * i) - dir.z * Math.sin(-Math.PI / 4 * i),
-        //                0,
-        //                dir.x * Math.sin(-Math.PI / 4 * i) + dir.z * Math.cos(-Math.PI / 4 * i)
-        //            ), //BACK/FRONT WORK others don't
-        //            this.distanceBounds[0],
-        //            this.distanceBounds[1])
-        //    );
-        //}
-
-        ////Check for intersection
-        //for (let i = 0; i < rays.length; i++) {
-        //    if (this.isMoving) {
-        //        let intersects = rays[i].intersectObjects(scene.children, true);
-        //        //Check direction
-        //        if (intersects.length > 0) {
-        //            //Front
-        //            if (i == 0) {
-        //                //console.log(rays);
-        //                console.log('front');
-        //                this.isForward = false;
-        //            }
-        //            //Front-Left
-        //            if (i == 1) {
-        //                console.log('front-left');
-        //                this.isForward = false;
-        //                this.isLeft = false;
-        //            }
-        //            //Left
-        //            if (i == 2) {
-        //                console.log('left');
-        //                this.isLeft = false;
-        //            }
-        //            //Back-Left
-        //            if (i == 3) {
-        //                console.log('back-left');
-        //                this.isBackward = false;
-        //                this.isLeft = false;
-        //            }
-        //            //Back
-        //            if (i == 4) {
-        //                console.log('back');
-        //                this.isBackward = false;
-        //            }
-        //            //Back-Right
-        //            if (i == 5) {
-        //                console.log('back-left');
-        //                this.isBackward = false;
-        //                this.isRight = false;
-        //            }
-        //            //Right
-        //            if (i == 6) {
-        //                console.log('right');
-        //                this.isRight = false;
-        //            }
-        //            ////Front-right
-        //            if (i == 7) {
-        //                console.log('front-right');
-        //                this.isForward = false;
-        //                this.isRight = false;
-        //            }
-        //        }
-        //    }
-        //}
 
         ////Detect height changes
         //let ray = new THREE.Raycaster(
-        //    new THREE.Vector3(pos.x, pos.y - 1.5, pos.z),
+        //    new THREE.Vector3(pos.x, pos.y + 0.5, pos.z),
         //    new THREE.Vector3(0, -1, 0),
         //    0,
         //    3
@@ -109,34 +51,62 @@ class Zombie extends THREE.Object3D {
 
         //if (o.length > 0) {
         //    if (o[0].distance < 0.3) {
-        //        this.controls.getObject().position.y += 0.3;
+        //        this.position.y += 0.3;
         //    }
         //    else if (o[0].distance > 0.6) {
-        //        this.controls.getObject().position.y -= 0.3;
+        //        this.position.y -= 0.3;
         //    }
         //}
 
         //Move
-        console.log('IN');
-        this.lookAt(player.controls.getObject().position);
-        
-        //this.scene.rotation.x += 0.01;
-        this.rotation.x = 0;
-        this.rotation.z = 0;
+        let playerPos = player.controls.getObject().position;
+
+        this.lookAt(playerPos.x, this.position.y, playerPos.z);
+
+        //Move forward and backward
+        if (this.isForward && playerPos.z > this.position.z + 0.2) {
+            this.position.z += this.speed;
+        }
+        else if (this.isBackward && playerPos.z < this.position.z - 0.2) {
+            this.position.z -= this.speed;
+        }
+        //Move right and left
+        if (this.isRight && playerPos.x > this.position.x + 0.2) {
+            this.position.x += this.speed;
+            this.rotation.y += this.speed;
+        }
+        else if (this.isLeft && playerPos.x < this.position.x - 0.2) {
+            this.position.x -= this.speed;
+            this.rotation.y -= this.speed;
+        }
+
+        //Make it appear to float up and down
+        if (this.position.y <= -this.verticalDisplacement)
+            this.isFloatingDown = false;
+        else if (this.position.y >= this.verticalDisplacement)
+            this.isFloatingDown = true;
+
+        if (this.isFloatingDown) {
+            this.position.y -= 0.02;
+        }
+        else {
+            this.position.y += 0.02;
+        }
     }
 
     killed() {
+        //Reduce the number of active zombies and the number of zombies left in a round
         --game.activeZombies;
-        --game.zommbiesLeft;
+        --game.zombiesLeft;
         
-
+        //New spawn timer
         game.spawnTimer = performance.now();
+        //Remove from game
         scene.remove(this);
 
         //Remove killed zombie from game array
         let index = game.zombies.indexOf(this);
         game.zombies.splice(index, 1);
-        console.log(index);
     }
     //Generate zombie model
     instanceZombie() {
@@ -146,17 +116,14 @@ class Zombie extends THREE.Object3D {
         gltfLoader
             .load(
                 // resource URL
-                'Models/zombie2.glb',
+                'Models/ghost.glb',
                 // called when resource is loaded
                 function (object) {
-                    object.scene.name = "";
                     object.scene.scale.set(that.dimensions, that.dimensions, that.dimensions);
-                    //object.rotation.set(0, 0, 0);
-                    object.scene.position.set(0, 0, 0);
                     that.add(object.scene);
-                    let light = new THREE.DirectionalLight(0xffffff, 1.0);
-                    light.position.set(0, 3, 10);
-                    that.add(light);
+                    //let light = new THREE.DirectionalLight(0xffffff, 1.0);
+                    //light.position.set(0, 3, 10);
+                    //that.add(light);
 
                 },
                 // called when loading is in progresses

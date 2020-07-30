@@ -13,13 +13,15 @@ function initControls() {
         game.paused = false;
         document.getElementById('pauseScreen').style.visibility = "hidden";
         canvas.style.visibility = "visible";
+        document.getElementById('Overlay').style.visibility = 'visible';
+        //document.getElementById('Overlay').style.backgroundColor = 'rgba(50, 50, 50, 0.3)';
     }, false);
     //When controls locked
     player.controls.addEventListener('unlock', function () {
         player.controls.unlock();
         game.paused = true;
         document.getElementById('pauseScreen').style.visibility = "visible";
-        //canvas.style.visibility = "hidden";
+        document.getElementById('Overlay').style.visibility = 'hidden';
     }, false);
 
 }
@@ -54,8 +56,8 @@ function onKeyDown(event) {
             player.isMoving = true;
             player.isRight = true;
             break;
-        case ' ':
-            //player.isMoving = true;
+        case 'R':
+            player.reload();
             break;
     }
 }
@@ -84,16 +86,17 @@ function onMouseDown(event) {
     event.preventDefault();
     if (player.controls.isLocked) {
         switch (event.which) {
+            //Left click
+            //Shoot
             case 1:
                 player.isShooting = true;
-                //console.log(player.controls.getObject().position);
                 break;
+            //Right click
+            //Aim
             case 3:
                 console.log('down');
                 player.isAiming = true;
                 break;
-            case 2:
-                //Do nothing
         }
     }
 }
@@ -102,31 +105,32 @@ function onMouseUp(event) {
     event.preventDefault();
     if (player.controls.isLocked) {
         switch (event.which) {
+            //Left click
+            //Stop shooting
             case 1:
                 player.isShooting = false;
                 break;
+            //Right click
+            //Stop aiming
             case 3:
                 console.log('up');
                 player.isAiming = false;
                 break;
-            case 2:
-            //Do nothing
         }
     }
 }
 
-function onScroll(event) {
-    
-    if (!game.paused) {
-        //console.log('in');
+/*function onScroll(event) {
+    //Do nothing
+    //Multiple weapons not yet implemented
+    /*if (!game.paused) {
         if (player.activeWeapon === 0)
             player.activeWeapon = 1;
         else
             player.activeWeapon = 0;
         console.log(player.activeWeapon);
-    }
-    //console.log('out'); 
-}
+    }*/
+}*/
 
 function listen() {
     //initControls();
