@@ -13,33 +13,35 @@ class Zombie extends THREE.Object3D {
         this.instanceZombie();
         this.verticalDisplacement = 0.5;
         this.isFloatingDown = true;
+        this.isAlive = true;
     }
 
     //Called every frame
     update() {
-        this.move();
+        if (!game.paused)
+            if (this.isAlive)
+                this.move();
     }
 
     //Damage when shot
     takeDmg(dmg) {
         this.health -= dmg;
+        let weapon = player.weapons[player.activeWeapon];
 
-        if (this.health <= 0)
+        if (this.health <= 0) {
             this.killed()
+            player.points += 35 / weapon.dmgDivider;
+            ++player.score[0];
+            player.score[1] += 35 / weapon.dmgDivider;
+        }
+        player.points += 3 / weapon.dmgDivider;
+        player.score[1] += 3 / weapon.dmgDivider;
+
+        document.getElementById('Points').innerHTML = player.points;
     }
 
     //Controls movement
     move() {
-        //Check for collision
-        let pos = this.position;
-
-        //Reset movement flags
-        this.isForward = true;
-        this.isBackward = true;
-        this.isLeft = true;
-        this.isRight = true;
-
-
         ////Detect height changes
         //let ray = new THREE.Raycaster(
         //    new THREE.Vector3(pos.x, pos.y + 0.5, pos.z),
@@ -64,18 +66,18 @@ class Zombie extends THREE.Object3D {
         this.lookAt(playerPos.x, this.position.y, playerPos.z);
 
         //Move forward and backward
-        if (this.isForward && playerPos.z > this.position.z + 0.2) {
+        if (playerPos.z > this.position.z + 0.2) {
             this.position.z += this.speed;
         }
-        else if (this.isBackward && playerPos.z < this.position.z - 0.2) {
+        else if (playerPos.z < this.position.z - 0.2) {
             this.position.z -= this.speed;
         }
         //Move right and left
-        if (this.isRight && playerPos.x > this.position.x + 0.2) {
+        if (playerPos.x > this.position.x + 0.2) {
             this.position.x += this.speed;
             this.rotation.y += this.speed;
         }
-        else if (this.isLeft && playerPos.x < this.position.x - 0.2) {
+        else if (playerPos.x < this.position.x - 0.2) {
             this.position.x -= this.speed;
             this.rotation.y -= this.speed;
         }
@@ -98,19 +100,33 @@ class Zombie extends THREE.Object3D {
         //Reduce the number of active zombies and the number of zombies left in a round
         --game.activeZombies;
         --game.zombiesLeft;
+
+        this.visible = false;
+
+        this.position.y = -10;
         
         //New spawn timer
         game.spawnTimer = performance.now();
-        //Remove from game
-        scene.remove(this);
+        ////Remove from game
+        //scene.remove(this);
 
         //Remove killed zombie from game array
         let index = game.zombies.indexOf(this);
+
+        //Add killed zombie to reusable collection
+        game.zombieCollection.push(this);
+
+        //Remove zombie from active list
         game.zombies.splice(index, 1);
+
+        this.isAlive = false;
     }
     //Generate zombie model
     instanceZombie() {
         const that = this;
+
+        dracoLoader.setDecoderPath('../libs/three.js/loaders/draco');
+        gltfLoader.setDRACOLoader(dracoLoader);
 
         //Load zombie model
         gltfLoader
@@ -119,12 +135,20 @@ class Zombie extends THREE.Object3D {
                 'Models/ghost.glb',
                 // called when resource is loaded
                 function (object) {
-                    object.scene.scale.set(that.dimensions, that.dimensions, that.dimensions);
-                    that.add(object.scene);
-                    //let light = new THREE.DirectionalLight(0xffffff, 1.0);
-                    //light.position.set(0, 3, 10);
-                    //that.add(light);
+                    let mat = new THREE.MeshPhongMaterial({
+                        color: new THREE.Color(0.3, 0.3, 0.6), opacity: 0.2,
+                        transparent: true, emissive: new THREE.Color(0, 0.2, 0.2)
+                    });
 
+                    object.scene.traverse((o) => {
+                        if (o.isMesh) {
+                            o.material = mat;
+                        }
+                    })
+
+                    object.scene.scale.set(that.dimensions, that.dimensions, that.dimensions);
+
+                    that.add(object.scene);
                 },
                 // called when loading is in progresses
                 function (xhr) {

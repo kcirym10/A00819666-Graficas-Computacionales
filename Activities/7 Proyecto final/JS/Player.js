@@ -13,14 +13,21 @@ class Player extends THREE.Object3D {
         this.isLeft = false;
         this.isRight = false;
         this.isShooting = false;
-        this.weapons = [weapons[0]];
+        this.weapons = [weapons[0], weapons[1]];
         this.activeWeapon = 0;
+        this.weapons[0].visible = true;
+        this.weapons[1].visible = false;
         this.add(weapons[0]);
+        this.add(weapons[1]);
         this.dmgDelay = 1000;
         this.lastDamaged = performance.now();
+        this.points = 500;
+        this.score = [0, 500];
+        this.buy = false;
 
-        //console.log(this.weapons);
+        console.log(this.weapons);
 
+        //Collision bounds
         this.distanceBounds = [ 0.01, 0.5 ];
 
         //Crosshair
@@ -33,7 +40,7 @@ class Player extends THREE.Object3D {
 
     //Called every frame
     update() {
-        //if (this.isMoving)
+        //Called every frame to detect when player takes damage
         this.move();
 
         //Aiming not implemented
@@ -47,18 +54,18 @@ class Player extends THREE.Object3D {
     createCrosshair() {
         let n = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.0002, 0.0002), new THREE.MeshBasicMaterial());
         n.position.set(0, 0, -0.2);
-
+        n.name = "Crosshair";
         this.add(n);
 
         let m = n.clone();
         m.rotation.set(0, Math.PI / 2, Math.PI / 2);
+        m.name = 'Crosshair';
         this.add(m);
     }
 
     //Control movement
     move() {
         //Check for collision
-
         let rays = [];
         let pos = this.controls.getObject().position,
             dir = this.controls.getDirection(new THREE.Vector3).clone();
@@ -66,7 +73,7 @@ class Player extends THREE.Object3D {
         //Create rays around player
         for (let i = 0; i < 8; i++) {
             rays.push(
-                new THREE.Raycaster(new THREE.Vector3(pos.x, 1.8, pos.z),
+                new THREE.Raycaster(new THREE.Vector3(pos.x, 1.0, pos.z),
                     new THREE.Vector3(
                         dir.x * Math.cos(-Math.PI / 4 * i) - dir.z * Math.sin(-Math.PI / 4 * i),
                         0,
@@ -194,6 +201,18 @@ class Player extends THREE.Object3D {
             this.isShooting = false;
     }
 
+    weaponChange() {
+        if (this.activeWeapon === 0) {
+            this.weapons[0].visible = true;
+            this.weapons[1].visible = false;
+        }
+        else {
+            this.weapons[1].visible = true;
+            this.weapons[0].visible = false;
+        }
+        document.getElementById('Ammo').innerHTML = `${this.weapons[this.activeWeapon].clip} / ${this.weapons[this.activeWeapon].ammoCount}`
+    }
+
     takeDmg() {
         let now = performance.now();
 
@@ -212,6 +231,6 @@ class Player extends THREE.Object3D {
     }
 
     reload() {
-
+        player.weapons[this.activeWeapon].reload();
     }
 }

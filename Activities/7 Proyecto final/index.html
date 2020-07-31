@@ -9,8 +9,6 @@
     <script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
     <script src="../libs/three.js/three.js"></script>
     <script src="../libs/three.js/controls/PointerLockControls.js"></script>
-    <script src="../libs/three.js/loaders/OBJLoader.js"></script>
-    <script src="../libs/three.js/loaders/MTLLoader.js"></script>
     <script src="../libs/three.js/loaders/GLTFLoader.js"></script>
     <script src="../libs/three.js/loaders/DRACOLoader.js"></script>
     <script src="./JS/SceneSetup.js"></script>
@@ -29,7 +27,11 @@
     <div id="Overlay">
         <h1 id="Round">Round: 0</h1>
         <h3 id="Health">Health: 100</h3>
-        <h4>Made by: Alejandro Myrick <br />Mat: A00819666 <br />Graficas Computacionales</h4>
+        <h4 style="color:white">Made by: Alejandro Myrick <br />Mat: A00819666 <br />Graficas Computacionales</h4>
+        <h3 id="Ammo"></h3>
+        <h3 id="Points">Points</h3>
+        <h3 id="Pickup">++Points</h3>
+        <h3 id="Purchase">Purchase</h3>
     </div>
 
     <div id="pauseScreen">
@@ -38,6 +40,7 @@
 
     <div id="GameOver">
         <h1>Game Over</h1>
+        <button id="New Game" style="top: 45vh;">New game</button>
     </div>
 </body>
 </html>

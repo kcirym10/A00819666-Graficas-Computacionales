@@ -6,11 +6,13 @@ let canvas = null,
     renderer = null,
     player = null,
     gltfLoader = new THREE.GLTFLoader(),
+    dracoLoader = new THREE.DRACOLoader(),
     game = null,
     map = null,
     objects = [],
     weapons = [
-        new Weapon(0, 15, false, 0.01, 'pistol', 64, 8);       //Pistol
+        new Weapon(0, 15, false, 0.01, 'pistol', 64, 8, 350, 150, 1),    //Pistol
+        new Weapon(1, 6, true, 0.1, 'rifle', 280, 35, 650, 50, 4)       //Rifle
     ];
 
 
@@ -18,19 +20,13 @@ $(document).ready(
     function () {
         //Get the canvas
         initCanvas();
+
         //Initialize all basic elements
         initScene(canvas);
 
+        //Start a new game
         game = new Game();
         game.newGame();
-
-        //for (let i = 0; i < 10; i++) {
-        //    let box = (new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshLambertMaterial()));
-        //    box.name = 'box';
-        //    box.position.set(Math.random() * 40 - 20, 2, Math.random() * 40 - 20);
-        //    scene.add(box);
-        //    objects.push(box);
-        //}
 
         run();
     }

@@ -11,6 +11,7 @@ function initControls() {
     player.controls.addEventListener('lock', function () {
         player.controls.lock();
         game.paused = false;
+        game.loading = true;
         document.getElementById('pauseScreen').style.visibility = "hidden";
         canvas.style.visibility = "visible";
         document.getElementById('Overlay').style.visibility = 'visible';
@@ -58,6 +59,17 @@ function onKeyDown(event) {
             break;
         case 'R':
             player.reload();
+            break;
+        case 'C':
+            player.buy = true;
+            break;
+        case '1':
+            player.activeWeapon = 0;
+            player.weaponChange();
+            break;
+        case '2':
+            player.activeWeapon = 1;
+            player.weaponChange();
             break;
     }
 }
@@ -120,17 +132,18 @@ function onMouseUp(event) {
     }
 }
 
-/*function onScroll(event) {
+function onScroll(event) {
+    event.preventDefault();
     //Do nothing
     //Multiple weapons not yet implemented
-    /*if (!game.paused) {
+    if (!game.paused) {
         if (player.activeWeapon === 0)
             player.activeWeapon = 1;
         else
             player.activeWeapon = 0;
         console.log(player.activeWeapon);
-    }*/
-}*/
+    }
+}
 
 function listen() {
     //initControls();
@@ -141,4 +154,5 @@ function listen() {
     window.addEventListener('mousedown', (event) => onMouseDown(event), false);
     window.addEventListener('mouseup', (event) => onMouseUp(event), false);
     window.addEventListener('scroll', (event) => onScroll(event), false);
+    document.getElementById('New Game').addEventListener('click', () => location.reload(), false)
 }
