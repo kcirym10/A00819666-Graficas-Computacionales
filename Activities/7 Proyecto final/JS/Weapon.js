@@ -51,7 +51,7 @@ class Weapon extends THREE.Object3D {
                         audioLoader.load(`Audio/9mm-gunshot.mp3`, function (buffer) {
                             that.sound.setBuffer(buffer);
                             that.sound.setLoop(false);
-                            that.sound.setVolume(0.5);
+                            that.sound.setVolume(0.15);
                             that.sound.offset = 0.1;
                             that.sound.playbackRate = 1;
                             that.sound.duration = 0.5;
@@ -76,7 +76,7 @@ class Weapon extends THREE.Object3D {
                         audioLoader.load(`Audio/MP5-gunshot.mp3`, function (buffer) {
                             that.sound.setBuffer(buffer);
                             that.sound.setLoop(false);
-                            that.sound.setVolume(0.3);
+                            that.sound.setVolume(0.05);
                             that.sound.duration = 0.15;
                         });
                     }

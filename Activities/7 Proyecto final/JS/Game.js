@@ -48,7 +48,7 @@ class Game {
         audioLoader.load(`Audio/round-start.mp3`, function (buffer) {
             that.sound.setBuffer(buffer);
             that.sound.setLoop(false);
-            that.sound.setVolume(0.5);
+            that.sound.setVolume(0.15);
             that.sound.offset = 0;
             that.sound.playbackRate = 1;
         });
