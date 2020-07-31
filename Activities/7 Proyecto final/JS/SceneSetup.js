@@ -41,7 +41,7 @@ function initScene() {
     //Add a floor
     let texture = new THREE.TextureLoader().load('./Textures/ground.jpg');
     let plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(100, 100, 100, 100),
+        new THREE.PlaneGeometry(150, 150, 100, 100),
         new THREE.MeshPhongMaterial({ map: texture, bumpMap: texture, bumpScale: 1.0 })
     );
 

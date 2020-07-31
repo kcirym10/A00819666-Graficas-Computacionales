@@ -148,7 +148,8 @@ class Game {
         house.add(light);
 
         //Ammo crate
-        mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), new THREE.MeshPhongMaterial());
+        texture = new THREE.TextureLoader().load('./Textures/concrete.jpg');
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), new THREE.MeshPhongMaterial({ map: texture, bumpMat: texture, bumpScale: 0.5 }));
         mesh.position.set(0, 0.5, 0);
         house.add(mesh);
         this.ammoCrate = mesh;
@@ -314,7 +315,7 @@ class Game {
                 let purchase = document.getElementById('Purchase');
                 //Show
                 purchase.style.visibility = 'visible';
-                purchase.innerHTML = `Purchase ammo ${player.weapons[player.activeWeapon].fillPrice}`
+                purchase.innerHTML = `Purchase ammo ${player.weapons[player.activeWeapon].fillPrice}`;
 
                 if (player.buy && player.points >= player.weapons[player.activeWeapon].fillPrice) {
                     if (!player.weapons[player.activeWeapon].isFull &&
@@ -345,6 +346,6 @@ class Game {
         document.getElementById('start').style.visibility = 'hidden';
         let pick = document.getElementById('Pickup');
         pick.style.visibility = 'visible';
-        pick.innerHTML = `Points: ${player.score[1]}<br>Kills: ${player.score[0]}`;
+        pick.innerHTML = `Survived ${this.round} rounds<br><br>Points: ${player.score[1]}<br>Kills: ${player.score[0]}`;
     }
 }

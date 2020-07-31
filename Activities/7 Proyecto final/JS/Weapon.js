@@ -58,6 +58,16 @@ class Weapon extends THREE.Object3D {
                         });
                     }
                     else {
+                        let texture = new THREE.MeshPhongMaterial({
+                            color: new THREE.Color(0.15, 0.15, 0.15)
+                        });
+
+                        object.scene.traverse((o) => {
+                            if (o.isMesh) {
+                                o.material = texture;
+                            }
+                        });
+
                         object.scene.scale.set(scale, 0.1, 0.1);
                         object.scene.rotation.y = -Math.PI / 2;
                         object.scene.position.set(0.15, -0.2, -0.35);
@@ -70,7 +80,6 @@ class Weapon extends THREE.Object3D {
                             that.sound.duration = 0.15;
                         });
                     }
-                    object.scene.rotation.x = Math.PI / 4;
                     that.add(object.scene);
                 },
                 // called when loading is in progresses
