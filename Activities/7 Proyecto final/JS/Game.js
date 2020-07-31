@@ -23,13 +23,14 @@ class Game {
 
         this.activeSpawns = 4;
         this.spawnDelay = 1000; //ms
-        this.roundDelay = 0;
+        this.roundDelay = 3000;
         this.roundTimer = 0;
         this.spawnTimer = performance.now();
         this.elapsed = 0;
         this.zombies = [];
         this.zombieCollection = [];
         this.ammoCrate = null;
+        this.sound = new THREE.Audio(listener);
 
         //Spawn a new player
         this.player = this.spawnPlayer();
@@ -39,6 +40,19 @@ class Game {
     }
 
     loadGameArea() {
+        let that = this;
+
+        //Load round sounds
+        //Round change from COD Zombies
+        let audioLoader = new THREE.AudioLoader();
+        audioLoader.load(`Audio/round-start.mp3`, function (buffer) {
+            that.sound.setBuffer(buffer);
+            that.sound.setLoop(false);
+            that.sound.setVolume(0.5);
+            that.sound.offset = 0;
+            that.sound.playbackRate = 1;
+        });
+
         //Build game area
 
         //Surrounding wall
@@ -256,8 +270,8 @@ class Game {
                 zombie.health = 100;
                 //Increase health 10 percent every round
                 zombie.health += zombie.health * game.round * 0.10;
-                if (zombie.speed < 0.08)
-                    zombie.speed += 0.005;
+                if (zombie.speed < 0.1)
+                    zombie.speed += 0.01;
                 zombie.visible = true;
 
                 //Remove from the zombie collection
@@ -270,6 +284,7 @@ class Game {
 
     //Start new round
     newRound() { 
+        this.sound.play();
         this.spawnedZombies = 0;
         this.zombiesLeft = this.zombiesPerRound;
         this.activeZombies = 0;
@@ -299,7 +314,7 @@ class Game {
                 let purchase = document.getElementById('Purchase');
                 //Show
                 purchase.style.visibility = 'visible';
-                purchase.innerHTML = `Purchase ${player.weapons[player.activeWeapon].fillPrice}`
+                purchase.innerHTML = `Purchase ammo ${player.weapons[player.activeWeapon].fillPrice}`
 
                 if (player.buy && player.points >= player.weapons[player.activeWeapon].fillPrice) {
                     if (!player.weapons[player.activeWeapon].isFull &&

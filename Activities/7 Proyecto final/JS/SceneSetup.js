@@ -20,7 +20,11 @@ function initScene() {
     //Create camera
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.y = 1.8;
+    camera.position.z = 2;
     scene.add(camera);
+
+    //Audio
+    camera.add(listener);
 
     //Add global lighting
     let light = new THREE.AmbientLight(0xffffff, 0.2);

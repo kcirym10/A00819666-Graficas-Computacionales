@@ -80,6 +80,21 @@ h4 {
 
 div#pauseScreen{
     visibility: visible;
+    background: url('../Images/background.png');
+    background-repeat: no-repeat;
+    background-color: black;
+    background-position-x: center;
+}
+
+#title {
+    display: inline-block;
+    position: absolute;
+    width: 40vw;
+    left: 30vw;
+    top: 40vh;
+    color: white;
+    text-align: center;
+    font-size: 4em;
 }
 
 div#Overlay{

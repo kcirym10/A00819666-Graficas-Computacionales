@@ -30,12 +30,12 @@ class Zombie extends THREE.Object3D {
 
         if (this.health <= 0) {
             this.killed()
-            player.points += 35 / weapon.dmgDivider;
+            player.points += 40 / weapon.dmgDivider;
             ++player.score[0];
-            player.score[1] += 35 / weapon.dmgDivider;
+            player.score[1] += 40 / weapon.dmgDivider;
         }
-        player.points += 3 / weapon.dmgDivider;
-        player.score[1] += 3 / weapon.dmgDivider;
+        player.points += 8 / weapon.dmgDivider;
+        player.score[1] += 8 / weapon.dmgDivider;
 
         document.getElementById('Points').innerHTML = player.points;
     }
